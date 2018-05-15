@@ -2,8 +2,8 @@
 //  main.m
 //  BeaconRec
 //
-//  Created by Saju Sathyan on 16/01/2018.
-//  Copyright © 2018 Sensus. All rights reserved.
+//  Created by DP Bhatt on 16/01/2018.
+//  Copyright © 2018 AceMySkills. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
