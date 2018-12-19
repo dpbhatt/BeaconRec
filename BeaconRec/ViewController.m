@@ -33,6 +33,12 @@
     // Tell location manager to start monitoring for the beacon region
     [self.locationManager startRangingBeaconsInRegion: self.myBeaconRegion];  // Ranging for beacons . Enter Region and Exit Region to stop it
     [self.locationManager startMonitoringForRegion: self.myBeaconRegion];
+    
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound) completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        // Enable or disable features based on authorization.
+    }];
+    [UNUserNotificationCenter currentNotificationCenter].delegate = self;
 }
 
 -(void) locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region
@@ -40,10 +46,16 @@
     [self.locationManager startRangingBeaconsInRegion: self.myBeaconRegion];
     NSLog(@"%@", region);
     
-    UILocalNotification *notification = [[UILocalNotification alloc] init];
-    notification.alertBody =@"Welcome to Sensus ApS";
-    notification.soundName = @"Default";
-    [[UIApplication sharedApplication] presentLocalNotificationNow: notification];
+    UNMutableNotificationContent  *content = [[UNMutableNotificationContent alloc] init];
+    [content setTitle:@"Notification"];
+    [content setSound: [UNNotificationSound defaultSound]];
+    
+    [content setBody:@"Welcome to Sensus ApS"];
+    NSString *requestIdentifier = @"iBeaconNotification";
+    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:requestIdentifier content:content trigger:nil];
+    [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+        
+    }];
 }
 
 -(void) locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region
@@ -51,18 +63,27 @@
     [self.locationManager stopRangingBeaconsInRegion: self.myBeaconRegion];
     NSLog(@"%@", region);
     
-    UILocalNotification *notification = [[UILocalNotification alloc] init];
-    notification.alertBody =@"Thanks for visiting Sensus ApS. See you again.";
-    notification.soundName = @"Default";
-    [[UIApplication sharedApplication] presentLocalNotificationNow: notification];
-}
+    
+    UNMutableNotificationContent  *content = [[UNMutableNotificationContent alloc] init];
+    [content setTitle:@"Notification"];
+    [content setSound: [UNNotificationSound defaultSound]];
+    
+    [content setBody:@"Thanks for visiting Sensus ApS. See you again."];
+    NSString *requestIdentifier = @"iBeaconNotification";
+    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:requestIdentifier content:content trigger:nil];
+    [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+        
+    }];
+    
+  }
 
 -(void) locationManager:(CLLocationManager *)manager didRangeBeacons: (NSArray *)beacons inRegion:(CLBeaconRegion *)region
 {
     if(beacons.count > 0)
     {
         CLBeacon *beacon = beacons[0];
-        self.statusLabel.text = [self nameForProximity: beacon.proximity];
+        self.statusLabel.text = [NSString stringWithFormat:@"%@ => %.02f m", [self nameForProximity: beacon.proximity], beacon.accuracy];
+        
     }
     NSLog(@"%@", region);
 }
